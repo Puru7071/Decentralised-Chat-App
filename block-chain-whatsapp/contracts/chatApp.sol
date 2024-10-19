@@ -16,6 +16,12 @@ contract ChatApp{
         uint256 timestamp ; 
         string msg ; 
     }
+    struct allUserStruct{
+        string name ;  
+        address accountAddress ; 
+    }
+
+    allUserStruct[] allUsers ; 
 
     mapping(address => user) userList ; 
     mapping(bytes32 => message[]) allMessages ; 
@@ -30,6 +36,7 @@ contract ChatApp{
         require(bytes(name).length > 0 , "Username can not be empty !!") ; 
         
         userList[msg.sender].name = name ; 
+        allUsers.push(allUserStruct(name , msg.sender)) ; 
     }
 
     function getUsername(address publicKey)external view returns (string memory){
@@ -94,4 +101,8 @@ contract ChatApp{
         return allMessages[chatCode] ; 
     }
 
+    function getAllRegisteredUser() external view returns(allUserStruct[] memory){
+        require(checkUserExists(msg.sender) , "Access Denied !!") ; 
+        return allUsers ; 
+    }
 }
