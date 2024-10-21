@@ -137,7 +137,9 @@ export default function ChatAppProvider({ children }) {
         error,
         friendMsg , 
         currentUserName , 
-        currentUserAddress
+        currentUserAddress , 
+        checkIfWalletConnected,
+        connectWallet
     }
     return <ChatAppContext.Provider value={data}>
         {children}
