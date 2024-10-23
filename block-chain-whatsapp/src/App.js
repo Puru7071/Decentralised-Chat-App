@@ -1,16 +1,19 @@
 import './App.css';
-import NavBar from "./components/NavBar";
-import { useEffect, useState, useContext } from 'react';
+import {useContext } from 'react';
 import { ChatAppContext } from './context/ChatAppContext';
 import MainPage from './pages/MainPage';
+import GetStarted from './pages/GetStarted';
+import { Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
 
 function App() {
-  // const {} = useContext(ChatAppContext) ; 
-
   return (
-    <div className='h-[100vh] w-[100vw] bg-[#202022]'>
-      <MainPage />
-    </div>
+    <Layout>
+      <Routes>
+        <Route path='/' element={<MainPage />} />
+        <Route path='/get-started' element={<GetStarted />} />
+      </Routes>
+    </Layout>
   );
 }
 

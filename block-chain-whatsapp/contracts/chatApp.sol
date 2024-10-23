@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED  
 
-pragma solidity >= 0.7.0 < 0.9; 
+pragma solidity ^0.8.24;
+import "hardhat/console.sol";
 
 contract ChatApp{
     struct friend{
@@ -39,10 +40,14 @@ contract ChatApp{
         allUsers.push(allUserStruct(name , msg.sender)) ; 
     }
 
-    function getUsername(address publicKey)external view returns (string memory){
-        require(checkUserExists(publicKey) == true , "User not registered!!") ;
+    function getUsername(address publicKey)public view returns (string memory){
+        console.log("The user is there %s" , publicKey) ; 
+        if(!checkUserExists(publicKey)){
+            return "" ; 
+        }
         return userList[publicKey].name ; 
     }
+    
     function _checkAlreadyAFriend(address key1 , address key2) internal view returns(bool){
         user storage user1 = userList[key1];
         for(uint256 i = 0 ; i < user1.friendList.length ; i ++){
@@ -102,7 +107,7 @@ contract ChatApp{
     }
 
     function getAllRegisteredUser() external view returns(allUserStruct[] memory){
-        require(checkUserExists(msg.sender) , "Access Denied !!") ; 
         return allUsers ; 
+        // require(checkUserExists(msg.sender) , "Access Denied !!") ; 
     }
 }

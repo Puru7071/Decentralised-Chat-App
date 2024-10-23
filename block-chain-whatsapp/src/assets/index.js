@@ -29,6 +29,8 @@ import image7 from "./img7.gif";
 import image8 from "./img8.gif";
 import image9 from "./img9.gif";
 import image10 from "./img10.gif";
+import login from "./login.jpg" ; 
+import intro from "./intro.jpg"
 
 export default {
   logo,
@@ -62,4 +64,6 @@ export default {
   image8,
   image9,
   image10,
+  login , 
+  intro
 };

@@ -23,16 +23,16 @@ export const connectWallet = async () => {
         const accounts = await window.ethereum.request({
             method: "eth_requestAccounts",
         })
+        
         const firstAcc = accounts[0];
         return firstAcc;
     } catch (err) {
         console.log("Something went wrong error is: ", err);
     }
 }
-export const fetchContract = (signerOrProvider) => new ethers.Contract(chatAppABI , chatAppAddress , signerOrProvider);
-
 export const connectingWithContract = async () => {
     try {
+        debugger ; 
         // Web3Modal is a library that provides a simple interface to connect 
         // to different wallet providers (like MetaMask, WalletConnect, etc.). 
         const web3modal = new Web3Modal(); 
@@ -59,13 +59,18 @@ export const connectingWithContract = async () => {
 
         // signer: This is the account that will be used to call functions 
         // and send transactions to the contract.
-        const contract = new ethers.Contract(
+        const contractRead = new ethers.Contract(
+            chatAppAddress,
+            chatAppABI,
+            provider
+        );
+        const contractWrite = new ethers.Contract(
             chatAppAddress,
             chatAppABI,
             signer
         );
 
-        return contract;
+        return {contractRead,contractWrite};
     } catch (error) {
         console.error("Contract connection error:", error);
         throw new Error("Failed to connect to the contract");
