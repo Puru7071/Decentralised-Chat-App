@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { useNavigate } from "react-router-dom";
+import { Await, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
     checkIfWalletConnected,
@@ -134,6 +134,21 @@ export default function ChatAppProvider({ children }) {
         setCurrentUserAddress(userAddress);
         setCurrentUserName(username);
     }
+
+    const checkIfUserExists = async (targetAddress) => {
+        try {
+            debugger ; 
+            if(!(!!targetAddress)){
+                return ; 
+            }
+            const { contractRead, contractWrite } = await connectingWithContract();
+            const isUserConnected = await contractRead?.checkUserExists(targetAddress);
+            return isUserConnected;
+        } catch (error) {
+            toast.error("Something went wrong") ; 
+            navigate("/") ; 
+        }
+    }
     const data = {
         readMessages,
         createAccount,
@@ -153,7 +168,8 @@ export default function ChatAppProvider({ children }) {
         connectWallet,
         connectingWithContract,
         setAccount,
-        setError
+        setError,
+        checkIfUserExists
     }
     return <ChatAppContext.Provider value={data}>
         {children}
