@@ -169,7 +169,8 @@ export default function ChatAppProvider({ children }) {
         connectingWithContract,
         setAccount,
         setError,
-        checkIfUserExists
+        checkIfUserExists , 
+        setLoading
     }
     return <ChatAppContext.Provider value={data}>
         {children}
