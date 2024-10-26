@@ -17,7 +17,7 @@ import { ChatAppContext } from '../context/ChatAppContext';
 const NavBar = () => {
   const menuOptions = [
     { label: "All Chats", url: "/", icon: <BsChatSquareFill className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
-    { label: "All Users", url: "/", icon: <FaUsers className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
+    { label: "All Users", url: "/all-users", icon: <FaUsers className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
     { label: "Add Friends", url: "/", icon: <MdContacts className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
     { label: "Settings", url: "/", icon: <IoIosSettings className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
     { label: "FAQs", url: "/", icon: <FaQuestionCircle className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
@@ -27,8 +27,6 @@ const NavBar = () => {
   const navigate = useNavigate();
   const [openModel, setOpenModel] = useState(false);
   const { account, connectWallet, checkIfWalletConnected, username ,createAccount , error} = useContext(ChatAppContext);
-  console.log(error)
-  console.log("!!account && !!username", account, username)
 
   return (
     <div className='h-[100%] w-[7%] flex flex-col items-center justify-around nav-bar-component'>

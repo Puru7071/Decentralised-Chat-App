@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
 import {
     checkIfWalletConnected,
     connectWallet,
@@ -14,7 +14,7 @@ export default function ChatAppProvider({ children }) {
     const [username, setUsername] = useState("");
     const [friendLists, setFriendLists] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [useList, setUserList] = useState([]);
+    const [userList, setUserList] = useState([]);
     const [error, setError] = useState("");
     const [friendMsg, setFriendMsg] = useState([]);
 
@@ -22,11 +22,16 @@ export default function ChatAppProvider({ children }) {
 
     const [currentUserName, setCurrentUserName] = useState("");
     const [currentUserAddress, setCurrentUserAddress] = useState("");
+    const handleAccountsChanged = (accounts) => {
+        if (accounts.length > 0) {
+            window.location.reload();
+        }
+    };
 
     const fetchData = async () => {
         try {
             debugger;
-            const {contractRead,contractWrite} = await connectingWithContract();
+            const { contractRead, contractWrite } = await connectingWithContract();
             const connectAccount = await connectWallet();
             setAccount(connectAccount);
 
@@ -38,6 +43,10 @@ export default function ChatAppProvider({ children }) {
 
             const userList = await contractRead.getAllRegisteredUser();
             if (!!userList) setUserList(userList);
+
+            if (window.ethereum) {
+                window.ethereum.on("accountsChanged", handleAccountsChanged);
+            }
         }
         catch (error) {
             setError("Please connect to your wallet !!");
@@ -45,11 +54,11 @@ export default function ChatAppProvider({ children }) {
     }
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [account]);
 
     const readMessages = async (friendAddress) => {
         try {
-            const {contractRead,contractWrite} = await connectingWithContract();
+            const { contractRead, contractWrite } = await connectingWithContract();
             const read = await contractRead.readMessage(friendAddress);
             setFriendMsg(read);
         } catch (error) {
@@ -62,8 +71,8 @@ export default function ChatAppProvider({ children }) {
             if (!(!!name) || !(!!accountAddress)) {
                 return setError("Name and Address are required.");
             }
-            debugger ; 
-            const {contractRead,contractWrite} = await connectingWithContract();
+            debugger;
+            const { contractRead, contractWrite } = await connectingWithContract();
             //Broadcast (await contract.createAccount(name)):
             // Sends the transaction to the blockchain network and 
             // resolves once the network has accepted it. It is now waiting 
@@ -77,19 +86,21 @@ export default function ChatAppProvider({ children }) {
             // the blockchain.     
             await getCreatedUser.wait();
             setLoading(false);
+            setUsername(name);
             toast.success("Account Created Successfully.")
-            setTimeout(()=>window.location.reload(), 3000) ; 
+            navigate("/");
         } catch (error) {
             setError("Error in creating account. Please Try again.");
         }
     }
 
-    const addFriends = async (name, accountAddress ) => {
+    const addFriends = async (name, accountAddress) => {
         try {
+            debugger;
             if (!(!!name) || !(accountAddress)) {
                 setError("Name and Account Address is mandatory !!");
             }
-            const {contractRead,contractWrite} = await connectingWithContract();
+            const { contractRead, contractWrite } = await connectingWithContract();
             const friendAdded = contractWrite.addFriend(accountAddress, name);
             setLoading(true);
             await friendAdded.wait();
@@ -100,13 +111,13 @@ export default function ChatAppProvider({ children }) {
         }
     }
 
-    const sendMessage = async (msg, accountAddress ) => {
+    const sendMessage = async (msg, accountAddress) => {
         try {
             if (!(!!msg) || !(!!accountAddress)) {
                 setError("Message and Account Address is mandatory !!")
             }
 
-            const {contractRead,contractWrite} = await connectingWithContract();
+            const { contractRead, contractWrite } = await connectingWithContract();
             const msgSent = await contractWrite.sendMessage(accountAddress, msg);
             setLoading(true);
             await msgSent.wait();
@@ -118,7 +129,7 @@ export default function ChatAppProvider({ children }) {
     }
 
     const readUser = async (userAddress) => {
-        const {contractRead,contractWrite} = await connectingWithContract();
+        const { contractRead, contractWrite } = await connectingWithContract();
         const username = await contractRead.getUsername(userAddress);
         setCurrentUserAddress(userAddress);
         setCurrentUserName(username);
@@ -133,13 +144,14 @@ export default function ChatAppProvider({ children }) {
         username,
         friendLists,
         loading,
-        useList,
+        userList,
         error,
         friendMsg,
         currentUserName,
         currentUserAddress,
         checkIfWalletConnected,
         connectWallet,
+        connectingWithContract,
         setAccount,
         setError
     }

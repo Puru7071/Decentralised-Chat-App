@@ -11,21 +11,33 @@ import images from "../assets/index";
 import Loader from '../components/Loader';
 
 const GetStarted = () => {
-    const { account, error , createAccount, loading, setError } = useContext(ChatAppContext);
+    const { account, error , createAccount, loading, setError , connectingWithContract , connectWallet } = useContext(ChatAppContext);
     const [address, setAddress] = useState(account);
     const [username, setUsername] = useState("");
     const [intialLoad , setIntialLoad] = useState(false) ; 
     const navigation = useNavigate() ; 
 
-    useEffect(() => {
-        if(!(!!account) && intialLoad){
-            navigation("/")
+    const intialCheck = async () => {
+        const walletAddress = await connectWallet() ; 
+        if(!(!!walletAddress)){
+            toast.error("Please connect to wallet.") ; 
+            return navigation("/"); 
         }
-        setAddress(account);
-        setIntialLoad(true) ; 
-    }, [account])
+        const {contractRead,contractWrite} = await connectingWithContract()
+        const checkUserExists = await contractRead?.checkUserExists(walletAddress) ; 
+        if(checkUserExists){
+            return navigation("/"); 
+        }
+    }
+    useEffect(()=>{
+        intialCheck() ;
+    })
 
     useEffect(() => {
+        setAddress(account);
+    }, [account])
+
+    useEffect(() => { 
         if(!!error)toast.error(error) ; 
         setError("")
     } , [error])
