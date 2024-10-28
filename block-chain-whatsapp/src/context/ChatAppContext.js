@@ -27,6 +27,36 @@ export default function ChatAppProvider({ children }) {
             window.location.reload();
         }
     };
+    const modifyFriendList = (friendLists) => {
+        const arr = [];
+        for (let friend of friendLists) {
+            const targetFriend = [...friend];
+            arr.push({ address: targetFriend?.[0], name: targetFriend?.[1] })
+        }
+        setFriendLists(arr);
+    }
+    const modifyUserList = (userList) => {
+        const arr = [];
+        for (let user of userList) {
+            const name = user[0];
+            const address = user[1];
+            if (account.toLowerCase() === address.toLowerCase()) {
+                continue;
+            }
+            arr.push({ name, address });
+        }
+        arr.push({ name: "Alice", address: "0x12345abcd12345abcd12345abcd12345abcd1234" });
+        arr.push({ name: "Bob", address: "0x23456bcde23456bcde23456bcde23456bcde2345" });
+        arr.push({ name: "Charlie", address: "0x34567cdef34567cdef34567cdef34567cdef3456" });
+        arr.push({ name: "Daisy", address: "0x45678defg45678defg45678defg45678defg4567" });
+        arr.push({ name: "Eve", address: "0x56789efgh56789efgh56789efgh56789efgh5678" });
+        arr.push({ name: "Frank", address: "0x67890fghi67890fghi67890fghi67890fghi6789" });
+        arr.push({ name: "Grace", address: "0x78901ghij78901ghij78901ghij78901ghij7890" });
+        arr.push({ name: "Henry", address: "0x89012hijk89012hijk89012hijk89012hijk8901" });
+        arr.push({ name: "Ivy", address: "0x90123ijkl90123ijkl90123ijkl90123ijkl9012" });
+        arr.push({ name: "Jack", address: "0xa1234jklm1234jklm1234jklm1234jklm1234a12" });
+        setUserList(arr);
+    }
 
     const fetchData = async () => {
         try {
@@ -39,10 +69,10 @@ export default function ChatAppProvider({ children }) {
             if (!!username) setUsername(username);
 
             const friendLists = await contractRead.getMyFriends();
-            if (!!friendLists) setFriendLists(friendLists);
+            if (!!friendLists) modifyFriendList(friendLists);
 
             const userList = await contractRead.getAllRegisteredUser();
-            if (!!userList) setUserList(userList);
+            if (!!userList) modifyUserList(userList);
 
             if (window.ethereum) {
                 window.ethereum.on("accountsChanged", handleAccountsChanged);
@@ -54,7 +84,7 @@ export default function ChatAppProvider({ children }) {
     }
     useEffect(() => {
         fetchData();
-    }, [account]);
+    }, []);
 
     const readMessages = async (friendAddress) => {
         try {
@@ -68,10 +98,10 @@ export default function ChatAppProvider({ children }) {
 
     const createAccount = async (name, accountAddress) => {
         try {
+            debugger ; 
             if (!(!!name) || !(!!accountAddress)) {
                 return setError("Name and Address are required.");
             }
-            debugger;
             const { contractRead, contractWrite } = await connectingWithContract();
             //Broadcast (await contract.createAccount(name)):
             // Sends the transaction to the blockchain network and 
@@ -94,6 +124,18 @@ export default function ChatAppProvider({ children }) {
         }
     }
 
+    const fetchFriendsList = async () => {
+        try {
+            const { contractRead, contractWrite } = await connectingWithContract();
+            const updateFriendsList = await contractRead.getMyFriends();
+            console.log("Friend list fetched:", updateFriendsList);
+            setFriendLists(updateFriendsList);
+            return;
+        } catch (e) {
+            console.log("e", e);
+        }
+    }
+
     const addFriends = async (name, accountAddress) => {
         try {
             debugger;
@@ -101,13 +143,16 @@ export default function ChatAppProvider({ children }) {
                 setError("Name and Account Address is mandatory !!");
             }
             const { contractRead, contractWrite } = await connectingWithContract();
-            const friendAdded = contractWrite.addFriend(accountAddress, name);
+            const friendAdded = await contractWrite.addFriend(accountAddress, name);
             setLoading(true);
             await friendAdded.wait();
             setLoading(false);
+            await fetchFriendsList();
+            toast.success(`${name} successfully added to your Friends list!`);
             navigate("/");
         } catch (error) {
-            setError("Something went wrong while adding the friend. Try again !!")
+            toast.error(error.reason);
+            console.log("Something went wrong while adding the friend. Try again !!", error.reason)
         }
     }
 
@@ -137,16 +182,15 @@ export default function ChatAppProvider({ children }) {
 
     const checkIfUserExists = async (targetAddress) => {
         try {
-            debugger ; 
-            if(!(!!targetAddress)){
-                return ; 
+            if (!(!!targetAddress)) {
+                return;
             }
             const { contractRead, contractWrite } = await connectingWithContract();
             const isUserConnected = await contractRead?.checkUserExists(targetAddress);
             return isUserConnected;
         } catch (error) {
-            toast.error("Something went wrong") ; 
-            navigate("/") ; 
+            toast.error("Something went wrong");
+            navigate("/");
         }
     }
     const data = {
@@ -169,8 +213,9 @@ export default function ChatAppProvider({ children }) {
         connectingWithContract,
         setAccount,
         setError,
-        checkIfUserExists , 
-        setLoading
+        checkIfUserExists,
+        setLoading,
+        fetchFriendsList
     }
     return <ChatAppContext.Provider value={data}>
         {children}

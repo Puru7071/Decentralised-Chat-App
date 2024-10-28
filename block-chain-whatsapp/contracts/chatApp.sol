@@ -58,25 +58,24 @@ contract ChatApp{
         return false ; 
     }
 
-    function _addFriendship(address me , address myFriend , string calldata name) internal{
-        friend memory myNewFriend = friend(myFriend , name) ; 
-        userList[me].friendList.push(myNewFriend) ; 
-        
-        friend memory hisNewFriend = friend(me , userList[me].name) ; 
-        userList[myFriend].friendList.push(hisNewFriend) ; 
+    function _addFriend(address me, address friend_key, string memory name) internal {
+        friend memory newFriend = friend(friend_key,name);
+        userList[me].friendList.push(newFriend);
     }
 
-    function addFriend(address friends_key , string calldata name) external{
-        require(checkUserExists(msg.sender) , "Create an account first !!");
-        require(checkUserExists(friends_key) , "User not registered !!") ;
-        require(msg.sender != friends_key , "Can friend yourself !!") ;
-        require(_checkAlreadyAFriend(msg.sender , friends_key) == false , "Friendship already exists !!") ; 
+    function addFriend(address friend_key, string calldata name) external {
+        require(checkUserExists(msg.sender), "Create an account first!");
+        require(checkUserExists(friend_key), "User is not registered!");
+        require(msg.sender!=friend_key, "Users cannot add themselves as friends!");
+        require(_checkAlreadyAFriend(msg.sender,friend_key)==false, "These users are already friends!");
 
-         _addFriendship(msg.sender, friends_key, name);
+        _addFriend(msg.sender, friend_key, name);
+        _addFriend(friend_key, msg.sender, userList[msg.sender].name);
     }
 
     function getMyFriends() external view returns(friend[] memory) {
-        return userList[msg.sender].friendList ; 
+        friend[] memory arr = userList[msg.sender].friendList ; 
+        return arr ; 
     }
 
     function _getChatCode(address publicKey1 , address publicKey2) internal pure returns(bytes32){

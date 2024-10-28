@@ -3,7 +3,7 @@ import { FaUserFriends } from "react-icons/fa";
 import { ChatAppContext } from '../context/ChatAppContext';
 
 
-const UserCard = ({ card, image, index ,number}) => {
+const UserCard = ({ card, image, index ,number ,}) => {
     const {addFriends} = useContext(ChatAppContext) ; 
     return (
         <div className='bg-[white] h-[280px] w-[400px] pt-[20px] border-[3px] border-[#1e91d6] rounded-[20px] relative'>

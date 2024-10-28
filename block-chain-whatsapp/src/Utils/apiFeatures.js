@@ -32,7 +32,6 @@ export const connectWallet = async () => {
 }
 export const connectingWithContract = async () => {
     try {
-        debugger ; 
         // Web3Modal is a library that provides a simple interface to connect 
         // to different wallet providers (like MetaMask, WalletConnect, etc.). 
         const web3modal = new Web3Modal(); 

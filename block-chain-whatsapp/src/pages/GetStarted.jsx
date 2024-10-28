@@ -1,4 +1,4 @@
-import { React, useContext, Fragment, useState, useEffect  } from 'react';
+import { React, useContext, Fragment, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChatAppContext } from '../context/ChatAppContext';
 import { FaEthereum } from "react-icons/fa";
@@ -9,38 +9,52 @@ import { IoIosAddCircle } from "react-icons/io";
 import toast from "react-hot-toast";
 import images from "../assets/index";
 import Loader from '../components/Loader';
+import Captcha from '../components/Captcha';
 
 const GetStarted = () => {
-    const { account, error , createAccount, loading, setError , connectingWithContract , connectWallet } = useContext(ChatAppContext);
+    const { account, error, createAccount, loading, setError, connectingWithContract, connectWallet } = useContext(ChatAppContext);
     const [address, setAddress] = useState(account);
     const [username, setUsername] = useState("");
-    const [intialLoad , setIntialLoad] = useState(false) ; 
-    const navigation = useNavigate() ; 
+    const [isCaptchaCorrect , setIsCaptchaCorrect] = useState(false) ;
+    const [refreshCaptcha , setRefreshCaptcha] = useState(false) ;  
+    const navigation = useNavigate();
 
     const intialCheck = async () => {
-        const walletAddress = await connectWallet() ; 
-        if(!(!!walletAddress)){
-            toast.error("Please connect to wallet.") ; 
-            return navigation("/"); 
+        const walletAddress = await connectWallet();
+        if (!(!!walletAddress)) {
+            toast.error("Please connect to wallet.");
+            return navigation("/");
         }
-        const {contractRead,contractWrite} = await connectingWithContract()
-        const checkUserExists = await contractRead?.checkUserExists(walletAddress) ; 
-        if(checkUserExists){
-            return navigation("/"); 
+        const { contractRead, contractWrite } = await connectingWithContract()
+        const checkUserExists = await contractRead?.checkUserExists(walletAddress);
+        if (checkUserExists) {
+            return navigation("/");
         }
     }
-    useEffect(()=>{
-        intialCheck() ;
+    const handleClickEvent = () => {
+        if(!isCaptchaCorrect){
+            toast.error("Wrong CAPTCHA") ; 
+            setRefreshCaptcha((prev)=>!prev) ; 
+            return ; 
+        }
+        createAccount(username, address) ; 
+        setTimeout(()=>{
+            setRefreshCaptcha((prev)=>!prev) ; 
+            setIsCaptchaCorrect(false) ; 
+        },1500) ; 
+    }
+    useEffect(() => {
+        intialCheck();
     })
 
     useEffect(() => {
         setAddress(account);
-    }, [account])
+    }, [account]) ; 
 
-    useEffect(() => { 
-        if(!!error)toast.error(error) ; 
+    useEffect(() => {
+        if (!!error) toast.error(error);
         setError("")
-    } , [error])
+    }, [error])
     return (
         <Fragment>
             <div className='w-[48%] h-[100%] flex justify-center items-center'>
@@ -79,15 +93,22 @@ const GetStarted = () => {
                         disabled
                     />
                 </div>
+                <h4 className='ml-[10px] mt-[20px] text-[#ff930a] text-[18px] font-[600] mb-[10px] flex flex-row flex-nowrap gap-[10px] justify-start items-center'>
+                    CAPTCHA <FaArrowTurnDown className='mt-[8px]' />
+                </h4>
+                <div className='h-[240px] w-[620px] ml-[10px] border-[3px] border-[#757575] rounded-[10px] relative'>
+                    <Captcha setIsCaptchaCorrect={setIsCaptchaCorrect} refreshCaptcha={refreshCaptcha}/>
+                </div>
+
                 <div className='flex flex-row gap-[20px] ml-[10px]'>
-                    <button onClick={() => createAccount(username, address)}
+                    <button onClick={handleClickEvent}
                         className='hover-pointer mt-[30px] bg-[#1976d2] rounded-[10px] text-[14px] font-[600] text-white h-[50px] w-[180px] flex flex-row items-center justify-around px-[20px] hover:cursor-pointer'>
                         <IoIosAddCircle className='text-[20px]' />
                         Create Account
                     </button>
                 </div>
             </div>
-            {loading ? <Loader/> : ""}
+            {loading ? <Loader /> : ""}
         </Fragment>
     )
 }
