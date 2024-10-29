@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { Await, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
     checkIfWalletConnected,
@@ -17,6 +17,8 @@ export default function ChatAppProvider({ children }) {
     const [userList, setUserList] = useState([]);
     const [error, setError] = useState("");
     const [friendMsg, setFriendMsg] = useState([]);
+    const [map, setMap] = useState({});
+    const [avatarID , setAvatarID] = useState("") ; 
 
     const navigate = useNavigate();
 
@@ -28,34 +30,30 @@ export default function ChatAppProvider({ children }) {
         }
     };
     const modifyFriendList = (friendLists) => {
-        const arr = [];
+        const arr = []; const mp = map;
         for (let friend of friendLists) {
-            const targetFriend = [...friend];
-            arr.push({ address: targetFriend?.[0], name: targetFriend?.[1] })
+            arr.push({ address: friend, name: mp[friend].name, avatarID: mp[friend].avatarID });
         }
+        console.log(arr);
         setFriendLists(arr);
     }
-    const modifyUserList = (userList) => {
-        const arr = [];
+    const modifyUserList = (userList , account) => {
+        const arr = []; const mp = map;
         for (let user of userList) {
             const name = user[0];
             const address = user[1];
+            const avatarID = user[2];
+            if(account.toLowerCase() === address.toLowerCase()){                
+                setAvatarID(avatarID) ; 
+            }
+            mp[address] = { name, avatarID };
             if (account.toLowerCase() === address.toLowerCase()) {
                 continue;
             }
-            arr.push({ name, address });
+            arr.push({ name, address, avatarID });
         }
-        arr.push({ name: "Alice", address: "0x12345abcd12345abcd12345abcd12345abcd1234" });
-        arr.push({ name: "Bob", address: "0x23456bcde23456bcde23456bcde23456bcde2345" });
-        arr.push({ name: "Charlie", address: "0x34567cdef34567cdef34567cdef34567cdef3456" });
-        arr.push({ name: "Daisy", address: "0x45678defg45678defg45678defg45678defg4567" });
-        arr.push({ name: "Eve", address: "0x56789efgh56789efgh56789efgh56789efgh5678" });
-        arr.push({ name: "Frank", address: "0x67890fghi67890fghi67890fghi67890fghi6789" });
-        arr.push({ name: "Grace", address: "0x78901ghij78901ghij78901ghij78901ghij7890" });
-        arr.push({ name: "Henry", address: "0x89012hijk89012hijk89012hijk89012hijk8901" });
-        arr.push({ name: "Ivy", address: "0x90123ijkl90123ijkl90123ijkl90123ijkl9012" });
-        arr.push({ name: "Jack", address: "0xa1234jklm1234jklm1234jklm1234jklm1234a12" });
-        setUserList(arr);
+        console.log("USER LIST: ", arr);
+        setUserList(arr); setMap(mp);
     }
 
     const fetchData = async () => {
@@ -68,11 +66,11 @@ export default function ChatAppProvider({ children }) {
             const username = await contractRead?.getUsername(connectAccount);
             if (!!username) setUsername(username);
 
-            const friendLists = await contractRead.getMyFriends();
-            if (!!friendLists) modifyFriendList(friendLists);
-
             const userList = await contractRead.getAllRegisteredUser();
-            if (!!userList) modifyUserList(userList);
+            if (!!userList) modifyUserList(userList , connectAccount);
+
+            const completeUser = await contractRead.getUser(connectAccount);
+            if (!!completeUser) modifyFriendList([...completeUser][1]);
 
             if (window.ethereum) {
                 window.ethereum.on("accountsChanged", handleAccountsChanged);
@@ -98,7 +96,7 @@ export default function ChatAppProvider({ children }) {
 
     const createAccount = async (name, accountAddress) => {
         try {
-            debugger ; 
+            debugger;
             if (!(!!name) || !(!!accountAddress)) {
                 return setError("Name and Address are required.");
             }
@@ -127,9 +125,8 @@ export default function ChatAppProvider({ children }) {
     const fetchFriendsList = async () => {
         try {
             const { contractRead, contractWrite } = await connectingWithContract();
-            const updateFriendsList = await contractRead.getMyFriends();
-            console.log("Friend list fetched:", updateFriendsList);
-            setFriendLists(updateFriendsList);
+            const completeUser = await contractRead.getUser(account)
+            if (!!completeUser) modifyFriendList([...completeUser][1]);
             return;
         } catch (e) {
             console.log("e", e);
@@ -143,13 +140,15 @@ export default function ChatAppProvider({ children }) {
                 setError("Name and Account Address is mandatory !!");
             }
             const { contractRead, contractWrite } = await connectingWithContract();
-            const friendAdded = await contractWrite.addFriend(accountAddress, name);
+
+            const friendAdded = await contractWrite.addFriend(accountAddress);
+
             setLoading(true);
             await friendAdded.wait();
             setLoading(false);
+
             await fetchFriendsList();
             toast.success(`${name} successfully added to your Friends list!`);
-            navigate("/");
         } catch (error) {
             toast.error(error.reason);
             console.log("Something went wrong while adding the friend. Try again !!", error.reason)
@@ -161,7 +160,6 @@ export default function ChatAppProvider({ children }) {
             if (!(!!msg) || !(!!accountAddress)) {
                 setError("Message and Account Address is mandatory !!")
             }
-
             const { contractRead, contractWrite } = await connectingWithContract();
             const msgSent = await contractWrite.sendMessage(accountAddress, msg);
             setLoading(true);
@@ -193,6 +191,20 @@ export default function ChatAppProvider({ children }) {
             navigate("/");
         }
     }
+    const updateAvatarID = async (avatarID) => {
+        try {
+            debugger ; 
+            const { contractWrite } = await connectingWithContract();
+
+            const updateOfAvatar = await contractWrite.updateAvatarID(account, avatarID);
+
+            await updateOfAvatar.wait();
+            setAvatarID(avatarID) ; 
+            toast.success("Avatar Updated Successfully.")
+        } catch (e) {
+            console.log("error" , e) ; 
+        }
+    }
     const data = {
         readMessages,
         createAccount,
@@ -215,7 +227,9 @@ export default function ChatAppProvider({ children }) {
         setError,
         checkIfUserExists,
         setLoading,
-        fetchFriendsList
+        fetchFriendsList , 
+        updateAvatarID , 
+        avatarID
     }
     return <ChatAppContext.Provider value={data}>
         {children}

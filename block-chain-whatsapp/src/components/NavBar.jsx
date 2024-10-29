@@ -5,7 +5,7 @@ import images from "../assets/index"
 import { FaUsers } from "react-icons/fa6";
 import { BsChatSquareFill } from "react-icons/bs";
 import { MdContacts } from "react-icons/md";
-import { IoIosSettings } from "react-icons/io";
+import { TbUserSquare } from "react-icons/tb";
 import { FaQuestionCircle } from "react-icons/fa";
 import { FaFileContract } from "react-icons/fa6";
 import { GiWallet } from "react-icons/gi";
@@ -17,17 +17,15 @@ import { ChatAppContext } from '../context/ChatAppContext';
 const NavBar = () => {
   const menuOptions = [
     { label: "All Chats", url: "/", icon: <BsChatSquareFill className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
-    { label: "All Users", url: "/all-users", icon: <FaUsers className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
-    { label: "Add Friends", url: "/", icon: <MdContacts className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
-    { label: "Settings", url: "/", icon: <IoIosSettings className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
+    { label: "Video Chat", url: "/", icon: <FaUsers className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
+    { label: "Add Friends", url: "/all-users", icon: <MdContacts className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
+    { label: "Edit Avatar", url: "/change-avatar", icon: <TbUserSquare className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
     { label: "FAQs", url: "/", icon: <FaQuestionCircle className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> },
     { label: "Terms", url: "/", icon: <FaFileContract className='text-[#898787] text-[24px] mb-[5px] group-hover:text-[white]' /> }
   ];
 
   const navigate = useNavigate();
-  const [openModel, setOpenModel] = useState(false);
-  const { account, connectWallet, checkIfWalletConnected, username ,createAccount , error} = useContext(ChatAppContext);
-
+  const { account, connectWallet, username , avatarID} = useContext(ChatAppContext);
   return (
     <div className='h-[100%] w-[7%] flex flex-col items-center justify-around nav-bar-component'>
       <div className='h-[80px] w-[80px] flex justify-center items-center hover:cursor-pointer'>
@@ -63,9 +61,9 @@ const NavBar = () => {
               <IoPersonAddSharp className='text-[#898787] text-[32px] mb-[5px] group-hover:text-[white]' />
               <span className='w-[100%] text-center text-[12px] text-[#555455] group-hover:text-[white]'>Get Started</span>
             </div> :
-            <div className='flex flex-col justify-center items-center h-[80px] w-[80px] text-white'>
-              <img src = {images?.accountName} alt="Account Image" width={60} height={60}/>
-              <span className='w-[100%] text-center text-[12px] text-[#555455] group-hover:text-[white]'>{username}</span>
+            <div className='flex flex-col justify-center items-center h-[60px] w-[60px] text-white'>
+              <img src = {avatarID === ""?images?.accountName:images?.[avatarID]} alt="Account Image" width={50} height={50} className='rounded-[30px]'/>
+              <span className='w-[100%] text-center text-[14px] text-[#555455] font-[500] mt-[10px] group-hover:text-[white]'>{username.substr(0,5)+".."}</span>
             </div>}
         </button>}
 

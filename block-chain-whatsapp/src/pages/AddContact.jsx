@@ -25,10 +25,10 @@ const AddContact = () => {
     }
 
     const makeUpCards = async () => {
-        const outputLevel1 = userList.filter(user => user.address.toLowerCase() !== account.toLowerCase()) ; 
+        const outputLevel1 = userList.filter(user => user?.address?.toLowerCase() !== account?.toLowerCase()) ; 
         const outputLevel2 = outputLevel1?.map(user => ({
             ...user,
-            showAddbutton : !(!!friendLists.find(friend => friend.address === user.address)) 
+            showAddbutton : !(!!friendLists.find(friend => friend?.address === user?.address)) 
         }))
         setCards(outputLevel2);
     }
@@ -47,7 +47,7 @@ const AddContact = () => {
                     result = result.filter(c => c.name.toLowerCase().startsWith(nameFilter.toLowerCase()));
                 }
                 if (addressFilter) {
-                    result = result.filter(c => c.address.toLowerCase().startsWith(addressFilter.toLowerCase()));
+                    result = result.filter(c => c?.address?.toLowerCase().startsWith(addressFilter.toLowerCase()));
                 }
                 return result;
             });
@@ -65,11 +65,11 @@ const AddContact = () => {
 
     return (
         <div className='flex flex-col justify-start h-[100%] pt-[20px] w-[100%] px-[25px] relative'>
-            <h1 className='text-[42px] font-[600] text-[#ff006e] flex flex-row items-center gap-[10px] mb-[5px]'>
-                <FaUserFriends className='text-[#331e36]' />
-                Connect & Chat: Add Your Friends to Start the Conversation!
+            <h1 className='text-3xl font-bold mb-4 flex items-center gap-3'>
+                <FaUserFriends className='text-pink-500' />
+                Connect & Chat: Add Your Friends
             </h1>
-            <div className='flex flex-row w-[80%] mb-[40px] justify-between gap-[10px] ml-[-10px] h-[8%]'>
+            <div className='flex flex-row w-[80%] mb-[20px] justify-between gap-[10px] ml-[-10px] h-[10%]'>
                 <div className='flex flex-row w-[49.5%] relative h-[45px] ml-[10px] border-[3px] border-[#757575] rounded-[10px]'>
                     <FaUserAlt className='absolute bottom-[5px] left-[10px] text-[28px] text-gray-500' />
                     <input
@@ -89,17 +89,17 @@ const AddContact = () => {
                     />
                 </div>
             </div>
-            {!loading && <div className='flex flex-row flex-wrap h-[auto] w-[100%] gap-[20px] justify-start overflow-scroll min-h-[600px]'>
+            {!loading && <div className='grid grid-cols-3 h-[80%] w-[100%] overflow-y-auto content-start gap-y-[10px] gap-x-[5px]'>
                 {cards.map((card, index) => {
-                    const imageIndex = ((index) % 10) + 1;
-                    const image = images[`image${imageIndex}`]
+                    const imageIndex = ((index) % 24) + 1;
+                    const image = card.avatarID ? images[`${card.avatarID}`] : images[`image${imageIndex}`]
                     return <UserCard card={card} image={image} index={imageIndex} number={index} />
                 })}
             </div>}
 
-            <div className='h-[92%] w-[100%] relative'>
-                {loading && <Loader />}
-            </div>
+            {loading && <div className='h-[92%] w-[100%] relative'>
+                {<Loader />}
+            </div>}
         </div>
     )
 }
