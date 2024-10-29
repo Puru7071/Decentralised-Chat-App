@@ -89,7 +89,7 @@ const AddContact = () => {
                     />
                 </div>
             </div>
-            {!loading && <div className='grid grid-cols-3 h-[80%] w-[100%] overflow-y-auto content-start gap-y-[10px] gap-x-[5px]'>
+            {!loading && <div className='grid grid-cols-3 h-[80%] w-[100%] overflow-y-auto content-start gap-y-[30px] gap-x-[5px]'>
                 {cards.map((card, index) => {
                     const imageIndex = ((index) % 24) + 1;
                     const image = card.avatarID ? images[`${card.avatarID}`] : images[`image${imageIndex}`]

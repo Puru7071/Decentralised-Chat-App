@@ -40,7 +40,7 @@ const ChangeAvatar = () => {
                 </button>}
             </div>
             <div className='h-[90%] w-[100%] flex flex-row justify-center items-center overflow-scroll'>
-                <div className='h-[100%] w-[100%] grid grid-cols-6 gap-6 p-[20px] rounded-[20px]'>
+                <div className='h-[100%] w-[100%] grid grid-cols-5 gap-6 p-[20px] rounded-[20px]'>
                     {allAvatars.map((avatar) => (
                         <button className='h-[160px] w-[160px] rounded-[150px] overflow-hidden relative group focus:ring-2 focus:ring-blue-500 focus:ring-offset-2' onClick={() => setSelectedAvatar(avatar)}>
                             <img src={avatar?.img}></img>
