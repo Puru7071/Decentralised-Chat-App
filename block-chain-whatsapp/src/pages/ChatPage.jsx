@@ -64,7 +64,7 @@ const ChatPage = () => {
                     </div>
                 </div>
                 <div className='h-[76%] w-[100%] flex flex-col gap-0 justify-start overflow-y-auto'>
-                    {userFilter?.map(friend => (<button
+                    {userFilter.length > 0 && userFilter?.map(friend => (<button
                         onClick={()=>{readMessages(friend?.address); setTargetChat(friend)}}
                         className='cursor-pointer'>
                         <div className='h-[80px] border-b-[1px] border-[#dee2e6] flex flex-row items-center justify-between p-[10px] hover:bg-[#e9ecef]'>
@@ -78,6 +78,10 @@ const ChatPage = () => {
                             <IoIosArrowForward className='text-[#6c757d]' />
                         </div>
                     </button>))}
+                    {userFilter.length === 0 && <div className='w-[100%] h-[100%] flex flex-col items-center gap-[10px] mt-[30px]'>
+                        <h1 className='text-3xl font-bold'>No Friends</h1> 
+                        <button onClick={()=>navigation("/all-users")} className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'>Add Friends</button>   
+                    </div>}
                 </div>
             </div>
             <div className='h-[100%] w-[70%]  flex flex-col'>

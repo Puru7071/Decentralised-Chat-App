@@ -8,6 +8,9 @@ const ChatArea = ({ friend, avatarID, account, sendMessage, msgList, connectingW
     const [msgs , setMsgs] = useState() ; 
     const bottomRef = useRef(null);
     const initialLoad = useRef(true);
+    const contractWriteRef = useRef(null);
+    const chatCodeRef = useRef("");
+
     const onNewMessage = (chatCodeEvent, sender, content, timestamp) => {
         console.log(chatCodeEvent.args);
         const newMessage = {
@@ -23,13 +26,19 @@ const ChatArea = ({ friend, avatarID, account, sendMessage, msgList, connectingW
         if (!!friend && !!account) {
             const { contractRead, contractWrite } = await connectingWithContract();
             const chatCode = await contractWrite._getChatCode(account || "", friend?.address || "");
-            console.log(chatCode);
+            contractWriteRef.current = contractWrite;
+            chatCodeRef.current = chatCode;
             const filter = contractWrite.filters.NewMessage(chatCode);
             contractWrite.on(filter, onNewMessage);
         }
     }
     useEffect(() => {
         eventTracer()
+        return () => {
+            if (contractWriteRef.current) {
+                contractWriteRef.current.off(contractWriteRef.current.filters.NewMessage(chatCodeRef.current), onNewMessage);
+            }
+        };
     }, [friend, account]) ; 
 
     useEffect(() => {
