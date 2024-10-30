@@ -4,7 +4,8 @@ import toast from "react-hot-toast";
 import {
     checkIfWalletConnected,
     connectWallet,
-    connectingWithContract
+    connectingWithContract,
+    convertTime
 } from '../Utils/apiFeatures';
 
 export const ChatAppContext = createContext();
@@ -55,6 +56,16 @@ export default function ChatAppProvider({ children }) {
         console.log("USER LIST: ", arr);
         setUserList(arr); setMap(mp);
     }
+    const modifyMsgList = (msgList) => {
+        const arr = [] ; 
+        for(let msg of msgList){
+            const address = msg[0] ; 
+            const timeStamp = msg[1] ; const message = msg[2] ;  
+            arr.push({message,timeStamp:convertTime(timeStamp),address}); 
+        }
+        console.log(arr) ; 
+        setFriendMsg(arr) ; 
+    }
 
     const fetchData = async () => {
         try {
@@ -75,6 +86,7 @@ export default function ChatAppProvider({ children }) {
             if (window.ethereum) {
                 window.ethereum.on("accountsChanged", handleAccountsChanged);
             }
+
         }
         catch (error) {
             setError("Please connect to your wallet !!");
@@ -87,8 +99,9 @@ export default function ChatAppProvider({ children }) {
     const readMessages = async (friendAddress) => {
         try {
             const { contractRead, contractWrite } = await connectingWithContract();
-            const read = await contractRead.readMessage(friendAddress);
-            setFriendMsg(read);
+            const read = await contractWrite.readMessage(friendAddress);
+            modifyMsgList([...read]);
+            console.log([...read])
         } catch (error) {
             setError("No Message was found !!");
         }
@@ -105,7 +118,8 @@ export default function ChatAppProvider({ children }) {
             // Sends the transaction to the blockchain network and 
             // resolves once the network has accepted it. It is now waiting 
             // to be mined by a miner.
-            const getCreatedUser = await contractWrite.createAccount(name);
+            const random = Math.floor(Math.random() * 24) + 1 ; 
+            const getCreatedUser = await contractWrite.createAccount(name , `image${random}`);
             setLoading(true);
 
             //Wait for Mining (getCreatedUser.wait()):
@@ -115,6 +129,7 @@ export default function ChatAppProvider({ children }) {
             await getCreatedUser.wait();
             setLoading(false);
             setUsername(name);
+            setAvatarID(`image${random}`)
             toast.success("Account Created Successfully.")
             navigate("/");
         } catch (error) {
@@ -164,8 +179,8 @@ export default function ChatAppProvider({ children }) {
             const msgSent = await contractWrite.sendMessage(accountAddress, msg);
             setLoading(true);
             await msgSent.wait();
-            setLoading(false);
-            window.location.reload();
+            setLoading(false); 
+            // window.location.reload();
         } catch (error) {
             setError("Message not sent. Please try again !!");
         }
@@ -229,7 +244,8 @@ export default function ChatAppProvider({ children }) {
         setLoading,
         fetchFriendsList , 
         updateAvatarID , 
-        avatarID
+        avatarID , 
+        convertTime
     }
     return <ChatAppContext.Provider value={data}>
         {children}

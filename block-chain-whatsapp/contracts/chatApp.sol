@@ -19,6 +19,7 @@ contract ChatApp{
         address accountAddress ; 
         string avatarID ; 
     }
+    event NewMessage(bytes32 indexed chatCode, address indexed sender, string content, uint256 timestamp);
 
     allUserStruct[] allUsers ; 
 
@@ -42,12 +43,13 @@ contract ChatApp{
         return ; 
     }
 
-    function createAccount(string calldata name) external{
+    function createAccount(string calldata name , string memory avatarID) external{
         require(checkUserExists(msg.sender) == false , "User Already Exists !!");
         require(bytes(name).length > 0 , "Username can not be empty !!") ; 
         
         userList[msg.sender].name = name ; 
-        allUsers.push(allUserStruct(name , msg.sender , "")) ; 
+        userList[msg.sender].avatarID = avatarID ; 
+        allUsers.push(allUserStruct(name , msg.sender , avatarID)) ; 
     }
 
     function getUsername(address publicKey)public view returns (string memory){
@@ -90,7 +92,7 @@ contract ChatApp{
         return userList[msg.sender].friendList  ; 
     }
 
-    function _getChatCode(address publicKey1 , address publicKey2) internal pure returns(bytes32){
+    function _getChatCode(address publicKey1 , address publicKey2) public pure returns(bytes32){
         // Ensure the addresses are ordered to prevent duplicates (e.g., A-B vs B-A)
         // eg A > B if fn(A,B) then hash will be of AB say its X 
         // if fn(B,A) then also hash will be X.
@@ -99,8 +101,11 @@ contract ChatApp{
         }
         return keccak256(abi.encodePacked(publicKey2 , publicKey1)) ; 
     }
-
-    function sendMessage(address friends_key , string calldata _msg) external{
+    function getMessageCount(address friends_key) external view returns(uint) {
+        bytes32 chatCode = _getChatCode(msg.sender, friends_key);
+        return allMessages[chatCode].length;
+    }
+    function sendMessage(address friends_key , string memory _msg) external{
         require(checkUserExists(msg.sender) , "Create an account first !!") ; 
         require(checkUserExists(friends_key) , "User doesn't exists !!") ; 
         require(_checkAlreadyAFriend(msg.sender, friends_key) , "You are not a friend with the given user.");   
@@ -110,6 +115,8 @@ contract ChatApp{
 
         bytes32 chatCode = _getChatCode(friends_key, msg.sender);
         allMessages[chatCode].push(newMsg); 
+
+        emit NewMessage(chatCode, msg.sender, _msg, block.timestamp);
     }
 
     function readMessage(address friends_key) external view returns(message[] memory){

@@ -75,11 +75,17 @@ export const connectingWithContract = async () => {
         throw new Error("Failed to connect to the contract");
     }
 };
-export const convertTime = (time) => {
-    const newTime = new Date(time.toNumber()) ;
-    const realTime = 
-    newTime.getHours() + ":" + newTime.getMinutes() + "  " + 
-    newTime.getDate() + "/" + (newTime.getMonth()+1) + "/" + newTime.getFullYear() ; 
-
-    return realTime ; 
+export const convertTime = (bigIntTimestamp) => {
+    const timestamp = Number(bigIntTimestamp);
+    const date = new Date(timestamp * 1000); 
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    return date.toLocaleDateString("en-US", options);
 }

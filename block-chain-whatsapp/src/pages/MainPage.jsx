@@ -1,9 +1,4 @@
-import React, { Fragment } from 'react'
-import images from '../assets/index'
-import { FaEthereum } from "react-icons/fa";
-import { TbDeviceMobileQuestion } from "react-icons/tb";
-import { RiGuideFill } from "react-icons/ri";
-
+import React, { Fragment, useEffect, useContext } from 'react'
 import { LuShield } from "react-icons/lu";
 import { LuLock } from "react-icons/lu";
 import { IoShieldOutline } from "react-icons/io5";
@@ -95,4 +90,4 @@ const MainPage = () => {
   )
 }
 
-export default MainPage ;
+export default MainPage;

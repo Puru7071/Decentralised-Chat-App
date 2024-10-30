@@ -44,7 +44,8 @@ import image22 from "./image22.jpg";
 import image23 from "./image23.jpg";
 import image24 from "./image24.jpg";
 import login from "./login.jpg";
-import intro from "./intro.jpg"
+import intro from "./intro.jpg" ; 
+import mainchat from "./main-chat.jpg"
 
 export default {
   logo,
@@ -66,6 +67,7 @@ export default {
   friends,
   friends2,
   accountName,
+  mainchat,
   dot,
   loader,
   image1,
