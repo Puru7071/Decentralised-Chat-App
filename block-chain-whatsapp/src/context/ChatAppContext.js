@@ -215,7 +215,7 @@ export default function ChatAppProvider({ children }) {
 
             await updateOfAvatar.wait();
             setAvatarID(avatarID) ; 
-            toast.success("Avatar Updated Successfully.")
+            toast.success("Avatar Updated Successfully. ")
         } catch (e) {
             console.log("error" , e) ; 
         }
