@@ -4,7 +4,9 @@ I used React.js and Tailwind CSS for the UI, Solidity for smart contracts, Ether
 <br>
 <br>
 <h1>Project Demo Video</h1><br>
-[![Watch the video](https://github.com/user-attachments/assets/04f64689-8209-4304-af62-9a410f3c3409)](https://youtu.be/LQdwT71puEI)
+<img width="0" alt="image" src="https://github.com/user-attachments/assets/62677e91-5d28-47d7-aec5-bd28ad6c3747">
+
+[![Watch the video](https://github.com/user-attachments/assets/62677e91-5d28-47d7-aec5-bd28ad6c3747)](https://youtu.be/LQdwT71puEI)
 
 
 
